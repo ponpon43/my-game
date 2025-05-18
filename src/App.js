@@ -1,12 +1,42 @@
 import React, { useEffect, useState } from "react";
+import playerImg from './assets/player.png';
+import obstacleImg from "./assets/obstacle.png";
+
+const catchphrases = [
+  "ジムに行ったらコロナになったね！",
+  "僕の故郷は新潟の糸魚川だね！",
+  "えっ、えっ、えっ、うぇっ！、聞こえないね！",
+  "僕の作ったパエリアおいしいでしょ！",
+  "いつかはげるよ！",
+  "最近、不健康なんだよね！",
+  "それはチャンスボール理論だね！",
+  "今日はネットが高すぎるね！",
+  "微分して！微分して！微分して！",
+  "積分はどんどん飛ばすね！",
+  "落ちるよ！",
+  "北高の非常勤もうできないね！",
+  "いっ！いでやぁ！！",
+  "それは、首が、飛ぶね！",
+  "やらしいね～でもできるよ！",
+  "難しいね～でもできるよ！",
+  "僕は女子は苦手だね！",
+  "僕は昔、不登校の生徒の対応で苦労しましたね！",
+  "朝生徒に怒鳴るとスッキリするね！",
+];
 
 function App() {
   const [playerY, setPlayerY] = useState(200);
   const [velocity, setVelocity] = useState(0);
   const [obstacleX, setObstacleX] = useState(400);
+  const [obstacleY, setObstacleY] = useState(230);
+  const [obstacleDY, setObstacleDY] = useState(1.5);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [score, setScore] = useState(0);
+  const [speed, setSpeed] = useState(4);
+  const [currentPhrase, setCurrentPhrase] = useState(""); // ← 口癖表示用
   const gravity = 0.5;
 
+  // メインゲームループ
   useEffect(() => {
     if (isGameOver) return;
 
@@ -17,18 +47,67 @@ function App() {
         return newY > 200 ? 200 : newY;
       });
 
+      setScore((prev) => prev + 1);
+      if (score % 100 === 0 && score !== 0) {
+        setSpeed((s) => Math.min(s + 1, 15));
+      }
+
       setObstacleX((x) => {
         if (x < -50) return 400;
-        return x - 4;
+        return x - speed;
       });
 
-      if (obstacleX < 70 && obstacleX > 30 && playerY > 160) {
+      setObstacleY((y) => {
+        let nextY = y + obstacleDY;
+        if (nextY < 180 || nextY > 260) {
+          setObstacleDY((dy) => -dy);
+          nextY = y - obstacleDY;
+        }
+        return nextY;
+      });
+
+      // 衝突判定
+      if (
+        obstacleX < 90 &&
+        obstacleX > 30 &&
+        playerY + 60 > obstacleY &&
+        playerY < obstacleY + 20
+      ) {
         setIsGameOver(true);
       }
     }, 16);
 
     return () => clearInterval(interval);
-  }, [velocity, obstacleX, isGameOver]);
+  }, [velocity, obstacleX, obstacleY, isGameOver, score, speed, obstacleDY]);
+
+  // 口癖表示ロジック
+  useEffect(() => {
+    if (isGameOver) return;
+
+    const showPhrase = () => {
+      const randomIndex = Math.floor(Math.random() * catchphrases.length);
+      setCurrentPhrase(catchphrases[randomIndex]);
+      setTimeout(() => {
+        setCurrentPhrase("");
+      }, 2000); // 表示時間
+    };
+
+    const randomInterval = () =>
+      Math.random() * 4000 + 3000; // 3秒〜7秒の間隔
+
+    let timeoutId;
+
+    const schedulePhrase = () => {
+      timeoutId = setTimeout(() => {
+        showPhrase();
+        schedulePhrase(); // 次の表示をスケジュール
+      }, randomInterval());
+    };
+
+    schedulePhrase();
+
+    return () => clearTimeout(timeoutId);
+  }, [isGameOver]);
 
   const jump = () => {
     if (!isGameOver && playerY >= 200) {
@@ -40,7 +119,12 @@ function App() {
     setIsGameOver(false);
     setPlayerY(200);
     setObstacleX(400);
+    setObstacleY(230);
+    setObstacleDY(1.5);
     setVelocity(0);
+    setScore(0);
+    setSpeed(4);
+    setCurrentPhrase("");
   };
 
   const handleInput = () => {
@@ -58,59 +142,80 @@ function App() {
       style={{
         width: "100vw",
         height: "100vh",
-        backgroundColor: "#ccf",
+        background: "white",
         position: "relative",
         overflow: "hidden",
         fontFamily: "sans-serif",
         userSelect: "none",
       }}
     >
-      {/* プレイヤー */}
-      {/* <div
+      {/* 得点表示 */}
+      <div
         style={{
           position: "absolute",
-          left: 50,
-          top: playerY,
-          width: 30,
-          height: 30,
-          backgroundColor: "tomato",
-          borderRadius: "50%",
+          top: 10,
+          left: 10,
+          color: "#333",
+          fontSize: 20,
+          fontWeight: "bold",
         }}
-      ></div> */}
+      >
+        得点: {score}
+      </div>
 
+      {/* ランダム口癖表示 */}
+      {currentPhrase && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20%",
+            width: "100%",
+            textAlign: "center",
+            fontSize: 24,
+            color: "blue",
+            fontWeight: "bold",
+          }}
+        >
+          {currentPhrase}
+        </div>
+      )}
+
+      {/* 障害物 */}
       <img
-        src="/player.png"
+        src={obstacleImg}
+        alt="obstacle"
+        style={{
+          position: "absolute",
+          left: obstacleX,
+          top: obstacleY,
+          width: 20,
+          height: 20,
+        }}
+      />
+
+      {/* プレイヤー */}
+      <img
+        src={playerImg}
         alt="player"
         style={{
           position: "absolute",
           left: 50,
           top: playerY,
-          width: 40,
-          height: 40,
+          width: 80,
+          height: 80,
+          objectFit: "contain",
         }}
       />
-
-      {/* 障害物 */}
-      <div
-        style={{
-          position: "absolute",
-          top: 230,
-          left: obstacleX,
-          width: 20,
-          height: 20,
-          backgroundColor: "black",
-        }}
-      ></div>
 
       {/* 地面 */}
       <div
         style={{
           position: "absolute",
-          bottom: 0,
+          bottom: 300,
           left: 0,
           width: "100%",
           height: 50,
-          backgroundColor: "#444",
+          background: "green",
         }}
       ></div>
 
@@ -119,14 +224,14 @@ function App() {
         <div
           style={{
             position: "absolute",
-            top: "40%",
+            top: "10%",
             width: "100%",
             textAlign: "center",
             fontSize: 24,
             color: "red",
           }}
         >
-          ゲームオーバー<br />
+          ゲームオーバー(うぇ！うぇ！うぇ！聞こえないね！)<br />
           タップ or クリックでリスタート
         </div>
       )}
@@ -135,25 +240,3 @@ function App() {
 }
 
 export default App;
-
-
-// import React, { useState } from 'react';
-// import './App.css';
-
-// function App() {
-//   const [score, setScore] = useState(0);
-
-//   const handleClick = () => {
-//     setScore(score + 1);
-//   };
-
-//   return (
-//     <div className="App">
-//       <h1>クリックして得点をためよう！</h1>
-//       <button onClick={handleClick}>クリック！</button>
-//       <p>得点: {score}</p>
-//     </div>
-//   );
-// }
-
-// export default App;
