@@ -1,15 +1,12 @@
-// App.js
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 
-const App = () => {
+function App() {
   const [playerY, setPlayerY] = useState(200);
   const [velocity, setVelocity] = useState(0);
   const [obstacleX, setObstacleX] = useState(400);
   const [isGameOver, setIsGameOver] = useState(false);
-  const gameRef = useRef(null);
   const gravity = 0.5;
 
-  // ゲームループ
   useEffect(() => {
     if (isGameOver) return;
 
@@ -21,25 +18,21 @@ const App = () => {
       });
 
       setObstacleX((x) => {
-        if (x < -50) return 400; // リセット
+        if (x < -50) return 400;
         return x - 4;
       });
 
-      // 当たり判定（簡易）
-      if (
-        obstacleX < 70 &&
-        obstacleX > 30 &&
-        playerY > 160
-      ) {
+      if (obstacleX < 70 && obstacleX > 30 && playerY > 160) {
         setIsGameOver(true);
       }
     }, 16);
+
     return () => clearInterval(interval);
   }, [velocity, obstacleX, isGameOver]);
 
-  const handleTouch = () => {
+  const jump = () => {
     if (!isGameOver && playerY >= 200) {
-      setVelocity(-10); // ジャンプ
+      setVelocity(-10);
     }
   };
 
@@ -50,9 +43,18 @@ const App = () => {
     setVelocity(0);
   };
 
+  const handleInput = () => {
+    if (isGameOver) {
+      resetGame();
+    } else {
+      jump();
+    }
+  };
+
   return (
     <div
-      onTouchStart={handleTouch}
+      onTouchStart={handleInput}
+      onClick={handleInput}
       style={{
         width: "100vw",
         height: "100vh",
@@ -100,7 +102,7 @@ const App = () => {
         }}
       ></div>
 
-      {/* ゲームオーバー */}
+      {/* ゲームオーバー表示 */}
       {isGameOver && (
         <div
           style={{
@@ -111,15 +113,14 @@ const App = () => {
             fontSize: 24,
             color: "red",
           }}
-          onTouchStart={resetGame}
         >
           ゲームオーバー<br />
-          タップでリスタート
+          タップ or クリックでリスタート
         </div>
       )}
     </div>
   );
-};
+}
 
 export default App;
 
