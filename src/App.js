@@ -66,7 +66,7 @@ function App() {
       }}
     >
       {/* プレイヤー */}
-      <div
+      {/* <div
         style={{
           position: "absolute",
           left: 50,
@@ -76,7 +76,19 @@ function App() {
           backgroundColor: "tomato",
           borderRadius: "50%",
         }}
-      ></div>
+      ></div> */}
+
+      <img
+        src="/player.png"
+        alt="player"
+        style={{
+          position: "absolute",
+          left: 50,
+          top: playerY,
+          width: 40,
+          height: 40,
+        }}
+      />
 
       {/* 障害物 */}
       <div
