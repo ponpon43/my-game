@@ -33,10 +33,11 @@ function App() {
   const [isGameOver, setIsGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [speed, setSpeed] = useState(4);
-  const [currentPhrase, setCurrentPhrase] = useState(""); // ← 口癖表示用
+  const [currentPhrase, setCurrentPhrase] = useState("");
+  const [gameStartTime, setGameStartTime] = useState(Date.now()); // ゲーム開始時間
+
   const gravity = 0.5;
 
-  // メインゲームループ
   useEffect(() => {
     if (isGameOver) return;
 
@@ -57,14 +58,19 @@ function App() {
         return x - speed;
       });
 
-      setObstacleY((y) => {
-        let nextY = y + obstacleDY;
-        if (nextY < 180 || nextY > 260) {
-          setObstacleDY((dy) => -dy);
-          nextY = y - obstacleDY;
-        }
-        return nextY;
-      });
+      // ここで10秒経過後にのみ上下移動
+      const now = Date.now();
+      const elapsed = now - gameStartTime;
+      if (elapsed >= 10000) {
+        setObstacleY((y) => {
+          let nextY = y + obstacleDY;
+          if (nextY < 180 || nextY > 260) {
+            setObstacleDY((dy) => -dy);
+            nextY = y - obstacleDY;
+          }
+          return nextY;
+        });
+      }
 
       // 衝突判定
       if (
@@ -78,9 +84,8 @@ function App() {
     }, 16);
 
     return () => clearInterval(interval);
-  }, [velocity, obstacleX, obstacleY, isGameOver, score, speed, obstacleDY]);
+  }, [velocity, obstacleX, obstacleY, isGameOver, score, speed, obstacleDY, gameStartTime]);
 
-  // 口癖表示ロジック
   useEffect(() => {
     if (isGameOver) return;
 
@@ -89,18 +94,18 @@ function App() {
       setCurrentPhrase(catchphrases[randomIndex]);
       setTimeout(() => {
         setCurrentPhrase("");
-      }, 2000); // 表示時間
+      }, 2000);
     };
 
     const randomInterval = () =>
-      Math.random() * 4000 + 3000; // 3秒〜7秒の間隔
+      Math.random() * 4000 + 3000;
 
     let timeoutId;
 
     const schedulePhrase = () => {
       timeoutId = setTimeout(() => {
         showPhrase();
-        schedulePhrase(); // 次の表示をスケジュール
+        schedulePhrase();
       }, randomInterval());
     };
 
@@ -125,6 +130,7 @@ function App() {
     setScore(0);
     setSpeed(4);
     setCurrentPhrase("");
+    setGameStartTime(Date.now()); // ゲーム再開時にリセット
   };
 
   const handleInput = () => {
@@ -149,7 +155,6 @@ function App() {
         userSelect: "none",
       }}
     >
-      {/* 得点表示 */}
       <div
         style={{
           position: "absolute",
@@ -163,7 +168,6 @@ function App() {
         得点: {score}
       </div>
 
-      {/* ランダム口癖表示 */}
       {currentPhrase && (
         <div
           style={{
@@ -180,7 +184,6 @@ function App() {
         </div>
       )}
 
-      {/* 障害物 */}
       <img
         src={obstacleImg}
         alt="obstacle"
@@ -193,7 +196,6 @@ function App() {
         }}
       />
 
-      {/* プレイヤー */}
       <img
         src={playerImg}
         alt="player"
@@ -207,7 +209,6 @@ function App() {
         }}
       />
 
-      {/* 地面 */}
       <div
         style={{
           position: "absolute",
@@ -219,7 +220,6 @@ function App() {
         }}
       ></div>
 
-      {/* ゲームオーバー表示 */}
       {isGameOver && (
         <div
           style={{
