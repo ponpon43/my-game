@@ -212,7 +212,7 @@ function App() {
       <div
         style={{
           position: "absolute",
-          bottom: 300,
+          bottom: 250,
           left: 0,
           width: "100%",
           height: 50,
@@ -227,7 +227,7 @@ function App() {
             top: "10%",
             width: "100%",
             textAlign: "center",
-            fontSize: 24,
+            fontSize: 12,
             color: "red",
           }}
         >
