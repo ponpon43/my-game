@@ -1,17 +1,17 @@
 {
   "files": {
     "main.css": "/my-game/static/css/main.e6c13ad2.css",
-    "main.js": "/my-game/static/js/main.61ad1261.js",
+    "main.js": "/my-game/static/js/main.859e4295.js",
     "static/js/453.2d3a34cf.chunk.js": "/my-game/static/js/453.2d3a34cf.chunk.js",
     "static/media/player.png": "/my-game/static/media/player.035b35ec38f2cc017f7c.png",
     "static/media/obstacle.png": "/my-game/static/media/obstacle.72d1f5b8fa4d778532b4.png",
     "index.html": "/my-game/index.html",
     "main.e6c13ad2.css.map": "/my-game/static/css/main.e6c13ad2.css.map",
-    "main.61ad1261.js.map": "/my-game/static/js/main.61ad1261.js.map",
+    "main.859e4295.js.map": "/my-game/static/js/main.859e4295.js.map",
     "453.2d3a34cf.chunk.js.map": "/my-game/static/js/453.2d3a34cf.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.61ad1261.js"
+    "static/js/main.859e4295.js"
   ]
 }
